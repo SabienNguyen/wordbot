@@ -4,8 +4,9 @@ from replit import db
 client = discord.Client()
 
 # Variables
-global text 
 text = []
+recentUser = 0
+userInput = ""
 
 def arrayToString(text):
   story = ""
@@ -22,7 +23,7 @@ async def on_ready():
 # runs each time messages is receieved
 @client.event
 async def on_message(message):
-  global text
+  global text, recentUser, userInput
   
   # gets server id so it knows where to go
   channels = ["one-word-story"]
@@ -37,16 +38,30 @@ async def on_message(message):
 
   if str(message.channel) in channels:
 
+
     #add a story
     if message.content.startswith('$add'):
-      userInput = message.content.split("$add ")
-      text.append(userInput[1])
-      text.append(" ")
-      await message.add_reaction("✅")
+      if(recentUser != message.author.id):
+        recentUser = message.author.id
+        userInput = message.content.split(" ")
+        text.append(userInput[1])
+        text.append(" ")
+        await message.add_reaction("✅")
+      else:
+        await message.add_reaction("❌")
+        await message.channel.send("You have to wait for someone else to message!")
+      
+      if len(userInput) > 2: 
+        await message.channel.send("Only first word is taken: " + userInput[1])
+      
+      
 
-    if message.content.startswith('$end'):
+    elif message.content.startswith('$end'):
       # await message.channel.send(text)
       await message.channel.send(arrayToString(text))
       text.clear()
+
+    # else:
+    #   await message.add_reaction("❌")
 
 client.run(os.getenv('TOKEN'))
