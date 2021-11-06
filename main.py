@@ -60,6 +60,8 @@ async def on_message(message):
       #     plsWork = True
       await message.channel.send(text)
 
+    
+
           
           
     # return text
