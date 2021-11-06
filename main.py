@@ -8,6 +8,7 @@ text = []
 recentUser = 0
 userInput = ""
 
+#takes in array parameter and returns single string
 def arrayToString(text):
   story = ""
   for word in text:
@@ -26,7 +27,7 @@ async def on_message(message):
   global text, recentUser, userInput
   
   # gets server id so it knows where to go
-  channels = ["one-word-story"]
+  channels = ["one-word-story", "hangman"]
   
   if message.author == client.user:
     return
@@ -36,7 +37,9 @@ async def on_message(message):
     # bot replies
     await message.channel.send('testing')
 
-  if str(message.channel) in channels:
+  # One Word Story ------------------------------------
+
+  if str(message.channel) in channels[0]:
 
 
     #add a story
@@ -60,8 +63,16 @@ async def on_message(message):
       # await message.channel.send(text)
       await message.channel.send(arrayToString(text))
       text.clear()
+  
 
-    # else:
-    #   await message.add_reaction("❌")
+  # Hangman ----------------------------------------
+from random_word import randomWords
+
+
+  if str(message.channel) in channels[1]:
+    if message.content.startswith('$play'):
+      
+
+
 
 client.run(os.getenv('TOKEN'))
