@@ -3,26 +3,16 @@ import os
 from replit import db
 client = discord.Client()
 
+# Variables
 global text 
 text = []
 
-# Returns concatenated list of words in text into s
-def concatenatedResult(s, text):
-  for item in text:
-    s += item
-  return s;
-
-def appendConcatenatedResults(word):
-  if "text" in db.keys():
-    text = db["text"]
-    text.append(word)
-    db["text"] = text
-  else:
-    db["text"] = [word]
-
-
-
-
+def arrayToString(text):
+  story = ""
+  for word in text:
+    story += word
+  return story
+    
 
 # Check to see if wordbot is running at all
 @client.event
@@ -36,11 +26,7 @@ async def on_message(message):
   
   # gets server id so it knows where to go
   channels = ["one-word-story"]
-  s = "... "
   
-  
-
-
   if message.author == client.user:
     return
     
@@ -54,37 +40,13 @@ async def on_message(message):
     #add a story
     if message.content.startswith('$add'):
       userInput = message.content.split("$add ")
-
       text.append(userInput[1])
-      # elif message.content.startswith('$end'):
-      #     plsWork = True
-      await message.channel.send(text)
+      text.append(" ")
+      await message.add_reaction("✅")
 
-    
-
-          
-          
-    # return text
-
-
-    # if message.content.startswith('$end'):
-    #   await message.channel.send(concatenatedResult(s, text)
-
-      
-      #Keeps waiting user(s) to add more words until they type $end?
-      
-
-
-
-
-
-  
-     
-
-    
-
-
-
-
+    if message.content.startswith('$end'):
+      # await message.channel.send(text)
+      await message.channel.send(arrayToString(text))
+      text.clear()
 
 client.run(os.getenv('TOKEN'))
