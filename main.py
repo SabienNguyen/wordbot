@@ -30,8 +30,6 @@ def inWord(guess, randWord):
   return False
 
 
-
-
 #-------------------------------------------------
 # Check to see if wordbot is running at all
 @client.event
@@ -74,8 +72,6 @@ async def on_message(message):
       if len(userInput) > 2: 
         await message.channel.send("Only first word is taken: " + userInput[1])
       
-      
-
     elif message.content.startswith('$end'):
       # await message.channel.send(text)
       await message.channel.send(arrayToString(text))
@@ -85,7 +81,6 @@ async def on_message(message):
   # Hangman ----------------------------------------
 
   #Variables
-  lives = 6
 
   #Word List
   word_site = "https://www.mit.edu/~ecprice/wordlist.10000"
@@ -94,8 +89,12 @@ async def on_message(message):
 
   if str(message.channel) in channels[1]:
     if message.content.startswith('$play'):
-      global randWord
+      global randWord, gameStatus, lives, win
+      
+      gameStatus = True
       randWord = ""
+      lives = 6
+      win = False
       difficultyInput = message.content.split(" ")
 
       #Choose random word 5 letters or less
@@ -119,6 +118,7 @@ async def on_message(message):
       #Prints error message if user doesn't type "easy","medium", or "hard"
       else:
         await message.channel.send("Invalid difficulty/Game is currently going on")
+
       s = ""
       for range in randWord:
         s+= "\_ "
@@ -126,16 +126,25 @@ async def on_message(message):
 
       
       # await message.channel.send()
-    if message.content.startswith('$guess '):
-      userInput = message.content.split(" ")
-      guess = userInput[1]
-      await message.channel.send("You just guessed..." + guess)
-      await message.channel.send(randWord)
-      if guess in randWord.decode("utf-8") :
-        await message.channel.send("AY nice") # DELETE OR CHANGE
-        # s = s.replace()
-      else:
-        await message.channel.send("u suck lmao") #DELETE OR CHANGE
+    if gameStatus == True:
+      if message.content.startswith('$guess '):
+        userInput = message.content.split(" ")
+        guess = userInput[1]
+        await message.channel.send("You just guessed..." + guess)
+        await message.channel.send(randWord)
+        if guess in randWord.decode("utf-8") :
+          await message.channel.send("AY nice")
+          await message.channel.send(s)
+          win = True
+        else:
+          await message.channel.send("Nope, try again")
+          lives -= 1
+          await message.channel.send(lives) #DELETE OR CHANGE
+      await message.channel.send(win)
+    if lives <= 0:
+      gameStatus = False
+      await message.channel.send("Awww, maybe next time")
+      await message.channel.send("type $play to play again")
 
       
       
