@@ -26,7 +26,6 @@ def inWord(guess, randWord):
   for letter in randWord:
     if guess == letter:
       return True
-      print("trint")
   return False
 
 
@@ -89,8 +88,9 @@ async def on_message(message):
 
   if str(message.channel) in channels[1]:
     if message.content.startswith('$play'):
-      global randWord, gameStatus, lives, win
-      
+      global randWord, gameStatus, lives, win, correctLetters, s, userCorrectLetters
+      userCorrectLetters = ""
+      correctLetters = ""
       gameStatus = True
       randWord = ""
       lives = 6
@@ -103,22 +103,28 @@ async def on_message(message):
         while len(randWord) > 5:
           randWord = randWordList[randint(0, 9999)]
         await message.channel.send("Easy: " + str(len(randWord)))
+        correctLetters += randWord.decode("utf-8")[0]
       #Choose random word 6-11 letters
       elif difficultyInput[1] == "medium":
         randWord = randWordList[randint(0, 9999)]
         while  6 > len(randWord) > 11:
          randWord = randWordList[randint(0, 9999)]
         await message.channel.send("Medium: " + str(len(randWord)))
+        correctLetters += randWord.decode("utf-8")[0]
       #Choose random word 12 letters or more
       elif difficultyInput[1] == "hard":
         randWord = randWordList[randint(0, 9999)]
         while len(randWord) < 12:
           randWord = randWordList[randint(0, 9999)]
         await message.channel.send("Hard: " + str(len(randWord)))
+        correctLetters += randWord.decode("utf-8")[0]
       #Prints error message if user doesn't type "easy","medium", or "hard"
       else:
         await message.channel.send("Invalid difficulty/Game is currently going on")
 
+      for letter in randWord.decode("utf-8"):
+        if letter not in correctLetters:
+          correctLetters += letter
       s = ""
       for range in randWord:
         s+= "\_ "
@@ -128,37 +134,28 @@ async def on_message(message):
       # await message.channel.send()
     if gameStatus == True:
       if message.content.startswith('$guess '):
+        await message.channel.send("Correct letters: " + userCorrectLetters)
         userInput = message.content.split(" ")
         guess = userInput[1]
-        await message.channel.send("You just guessed..." + guess)
-        await message.channel.send(randWord)
-        if guess in randWord.decode("utf-8") :
+        if guess in userCorrectLetters:
+          await message.channel.send("You already guessed that you silly goose!")
+        elif guess in randWord.decode("utf-8") :
           await message.channel.send("AY nice")
           await message.channel.send(s)
-          win = True
+          correctLetters = correctLetters.replace(guess, '')
+          userCorrectLetters += guess
         else:
           await message.channel.send("Nope, try again")
           lives -= 1
-          await message.channel.send(lives) #DELETE OR CHANGE
-      await message.channel.send(win)
+          await message.channel.send("You have " + str(lives) + " tries left")
     if lives <= 0:
       gameStatus = False
       await message.channel.send("Awww, maybe next time")
+      await message.channel.send("The correct word is: " + str(randWord))
       await message.channel.send("type $play to play again")
-
+    if len(correctLetters) == 0:
+      gameStatus = False
+      await message.channel.send("Yay! Good job! :)")
+      await message.channel.send("type $play to play again")
       
-      
-      
-      
-
-        
-    
-    
-
-
- # await settings.message.add_reaction("🍎")
-      # await settings.message.add_reaction("🍊")
-      # awai csettings.messagemad_reaction("🍋")
-
-
 client.run(os.getenv('TOKEN'))
